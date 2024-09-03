@@ -31,3 +31,4 @@ fundus_v2/fundus_ftextractor copy.py
 fundus_v2/fundus_img_dataset copy 2.py
 fundus_v2/fundus_img_dataset copy.py
 /fundus_v2/fundus_ftextractor copy 2.py
+/fundus_v2/fundus_rf_classifier copy.py
