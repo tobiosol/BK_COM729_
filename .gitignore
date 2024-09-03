@@ -1,0 +1,32 @@
+
+*.json
+*.pyc
+dataset/v2/label/train_label - Copy.csv
+dataset/v2/label/validation_label - Copy.csv
+/dataset/v2/original - Copy/training
+/dataset/v2/original - Copy
+/dataset/v2/original
+/timg
+/trained_model
+fundus_v2/weighted_cross_entropyloass.py
+fundus_v2/RetinalImagePreprocessor.py
+fundus_v2/fundus_img_preprocessorV22.py
+fundus_v2/fundus_img_preprocessorV21.py
+fundus_v2/fundus_img_preprocessorV20.py
+fundus_v2/fundus_img_preprocessorV19.py
+fundus_v2/fundus_img_preprocessorV18.py
+fundus_v2/fundus_img_preprocessorV18 copy.py
+fundus_v2/fundus_img_preprocessorV16.py
+fundus_v2/fundus_img_preprocessorV17.py
+fundus_v2/fundus_img_preprocessorV15.py
+fundus_v2/fundus_img_preprocessorV14.py
+/dataset/v2/images
+fundus_v2/cnn_model_wrapper copy 2.py
+fundus_v2/cnn_model_wrapper copy.py
+fundus_v2/fundus_cnn_trainer copy 2.py
+fundus_v2/fundus_cnn_trainer copy 3.py
+fundus_v2/fundus_cnn_trainer copy.py
+fundus_v2/fundus_dataloader copy.py
+fundus_v2/fundus_ftextractor copy.py
+fundus_v2/fundus_img_dataset copy 2.py
+fundus_v2/fundus_img_dataset copy.py
