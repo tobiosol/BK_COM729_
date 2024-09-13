@@ -21,7 +21,8 @@ class AttentionLayer(nn.Module):
 class DenseNet121Model(nn.Module):
     def __init__(self, num_classes=3, dropout_rate=0.5):
         super(DenseNet121Model, self).__init__()
-        self.model = models.densenet121(pretrained=True)
+        # self.model = models.densenet121(pretrained=True)
+        self.model = models.densenet121(weights=models.DenseNet121_Weights.DEFAULT)
         self.model.features.conv0 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
         # self.model.features.norm0 = nn.BatchNorm2d(64)
         num_ftrs = self.model.classifier.in_features
@@ -34,8 +35,6 @@ class DenseNet121Model(nn.Module):
         )
         
         self._initialize_weights()
-        
-        
         
         for param in self.model.parameters():
             param.requires_grad = True
@@ -59,8 +58,8 @@ class DenseNet121Model(nn.Module):
 class ResNeXt50_32x4dModel(nn.Module):
     def __init__(self, num_classes=3, dropout_rate=0.5):
         super(ResNeXt50_32x4dModel, self).__init__()
-        self.model = models.resnext50_32x4d(pretrained=True)
-        
+        # self.model = models.resnext50_32x4d(pretrained=True)
+        self.model = models.resnext50_32x4d(weights=models.ResNeXt50_32X4D_Weights.DEFAULT)
         # Modify the first convolutional layer to accept 1 channel input
         self.model.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
         num_ftrs = self.model.fc.in_features

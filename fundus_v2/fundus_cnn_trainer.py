@@ -34,9 +34,6 @@ class FundusCNNTrainer:
         self.train_loader = train_loader
         self.val_loader = val_loader
         
-        
-        
-        
         # Class distribution
         num_samples = 930
         class_counts = [90, 290, 595]  #  CWS: 0, DR: 1, NI: 2
@@ -46,8 +43,6 @@ class FundusCNNTrainer:
         self.criterion = nn.CrossEntropyLoss(weight=self.class_weights_tensor)
         
         self.early_stopper = EarlyStopping(patience=10)
-        
-        
         
         self.best_accuracy = 0
         self.learning_rates = []
@@ -93,13 +88,6 @@ class FundusCNNTrainer:
         else:
             raise ValueError("Invalid model name")
         return optimizer
-    
-    
-    
-    
-    
-    
-    
     
     
     def compute_class_weights(self, dataloader, device, num_classes):
@@ -210,12 +198,6 @@ class FundusCNNTrainer:
         return epoch_loss, epoch_acc, metrics
 
     
-    
-    
-    
-    
-    
-    
     def validate(self, val_loader, num_classes=3):
         class_weights = self.compute_class_weights(val_loader, self.device, num_classes)
         self.criterion = nn.CrossEntropyLoss(weight=class_weights)
@@ -267,26 +249,9 @@ class FundusCNNTrainer:
             'f1': f1,
             'sensitivity': metrics["sensitivity"]
         }
-        self.plot_metrics(val_metrics, all_labels, all_probs)
+        # self.plot_metrics(val_metrics, all_labels, all_probs)
         return val_loss, val_acc, val_metrics
 
-    
-    
-    
-    
-    
-    
-
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
     
     
     def calculate_metrics(self, labels, preds):
@@ -378,15 +343,6 @@ class FundusCNNTrainer:
         print(f"Unique labels in final batches: {unique_labels_in_batches}")
         
         return batches
-
-
-
-
-
-    
-    
-    
-    
     
     
     

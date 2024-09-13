@@ -159,7 +159,7 @@ class FundusImagePreprocessorV23:
     
     
     def preprocess(self, image_path):
-    # Load the image as grayscale
+        # Load the image as grayscale
         image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
         
         # Resize the image to 256 x 256
@@ -290,6 +290,14 @@ class FundusImagePreprocessorV23:
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
     def save_processed_image(self, image, dest_image_dir, original_filename):
             new_filename = f"{os.path.splitext(original_filename)[0]}{os.path.splitext(original_filename)[1]}"
             save_path = os.path.join(dest_image_dir, new_filename)
@@ -311,6 +319,34 @@ class FundusImagePreprocessorV23:
                 return [os.path.join(image_folder, file) for file in os.listdir(image_folder) if file.endswith(".jpg") or file.endswith(".png")]
         
     
+    def predictor_preprocess(self, pil_image):
+        # Convert PIL image to numpy array
+        image = np.array(pil_image)
+
+        # Convert to grayscale
+        image_gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+
+        # Contrast enhancement using histogram equalization
+        enhanced = exposure.equalize_adapthist(image_gray, clip_limit=0.03)
+
+        # Convert the enhanced image to 8-bit format
+        enhanced = (enhanced * 255).astype(np.uint8)
+
+        # Noise reduction using Gaussian filter
+        blurred = cv2.GaussianBlur(enhanced, (5, 5), 0)
+
+        # Thresholding to segment bright lesions
+        _, thresholded = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
+        # Morphological operations to remove small noise
+        kernel = np.ones((3, 3), np.uint8)
+        cleaned = cv2.morphologyEx(thresholded, cv2.MORPH_OPEN, kernel, iterations=2)
+
+        # Convert cleaned image back to PIL format
+        cleaned_pil = Image.fromarray(cleaned)
+
+        return cleaned_pil
+    
     
     
 
@@ -318,7 +354,7 @@ preprocessor = FundusImagePreprocessorV23()
 image_path = 'timg/IMG0413 (8).png'
 # image_path = 'timg/IMG0052.png'
 # image_path = 'timg/A (117).png'
-processed_image = preprocessor.preprocess(image_path)
+# processed_image = preprocessor.preprocess(image_path)
 # Display the combined image
 # cv2.imshow('Combined Image', processed_image)
 # cv2.waitKey(0)

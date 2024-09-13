@@ -54,6 +54,8 @@ class FundusFTExtractor:
                 all_labels.append(targets.cpu().numpy())
         return np.concatenate(all_features), np.concatenate(all_labels)
     
+    
+    
     def el_extract_features(self, dataloader):
         features = []
         labels = []

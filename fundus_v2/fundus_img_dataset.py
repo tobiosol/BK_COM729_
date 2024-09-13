@@ -14,7 +14,7 @@ import os
 from PIL import Image
 import numpy as np
 import proj_util
-from fundus_v2 import fundus_img_augmentor,fundus_img_preprocessorV17
+from fundus_v2 import fundus_img_augmentor,fundus_img_preprocessorV23
 from skimage.feature import graycomatrix, graycoprops
 
 class FundusImageDataset(Dataset):
@@ -30,7 +30,7 @@ class FundusImageDataset(Dataset):
         self.image_paths = proj_util.load_images_from_folder(self.image_dir)
         print("image_paths", len(self.image_paths))
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.image_preprocessor = fundus_img_preprocessorV17.FundusImagePreprocessorV16()
+        self.image_preprocessor = fundus_img_preprocessorV23.FundusImagePreprocessorV23()
         self.image_augmentor = fundus_img_augmentor.FundusImageAugmentor()
 
     def __len__(self):

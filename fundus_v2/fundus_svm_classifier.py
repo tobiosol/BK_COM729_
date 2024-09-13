@@ -4,7 +4,9 @@ import sys
 
 from matplotlib import pyplot as plt
 import numpy as np
-from sklearn.model_selection import GridSearchCV
+from sklearn import ensemble
+from sklearn.ensemble import BaggingClassifier, VotingClassifier
+from sklearn.model_selection import GridSearchCV, train_test_split
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -26,42 +28,82 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from imblearn.over_sampling import SMOTE
 
+import joblib
+
 class FundusSVMClassifier:
     def __init__(self, cnn_models, val_loader, device):
         self.device = device
         self.val_loader = val_loader
         
         self.f_extractor = FundusFTExtractor(device=device, cnn_models=cnn_models)
-        self.svm_model = make_pipeline(
-            StandardScaler(),
-            svm.SVC(C=1.0, gamma='scale', kernel='rbf', probability=True)
-        )
+        self.num_models = 5  
+        feature_names = [model.model_name for model in cnn_models]
+        self.feature_name = "_".join(feature_names)
+        self.svm_model_file = proj_util.get_trained_model(f"{self.feature_name}_svm_features.pkl")
         
-    def train(self):
+        self.svm_classifiers = None
+        self.ensemble_model = None
+        
+    
+    def train_el(self):
+        if os.path.exists(self.svm_model_file):
+            print("Loaded existing model.")
+            self.ensemble_model = joblib.load(self.svm_model_file)
+        else:
+            features, labels = self.f_extractor.el_extract_features(dataloader=self.val_loader)
+            X_train, _, y_train, _ = train_test_split(features, labels, test_size=0.2, random_state=42)
+
+            self.svm_classifiers = []
+            for i in range(self.num_models):
+                svm_model = make_pipeline(StandardScaler(), svm.SVC(C=1.0, gamma='scale', kernel='rbf'))
+                svm_model.fit(X_train, y_train)
+                self.svm_classifiers.append(svm_model)
+
+            self.ensemble_model = VotingClassifier(estimators=self.svm_classifiers, voting='hard')
+            joblib.dump(self.ensemble_model, self.svm_model_file)
+            print("Trained and saved new model.")
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+        
+        joblib.dump(self.ensemble_model, self.svm_model_file)
+
+    def predict_el(self):
+        # Predictions from the ensemble model
+        predictions = self.ensemble_model.predict(self.features)
+        return predictions
+
+    def evaluate_el(self):
         features, labels = self.f_extractor.el_extract_features(dataloader=self.val_loader)
         
-        # Apply SMOTE to the training data
-        smote = SMOTE(random_state=42)
-        features_resampled, labels_resampled = smote.fit_resample(features, labels)
+        predictions = self.ensemble_model.predict(features)
+        accuracy = accuracy_score(labels, predictions)
+
+        # Calculate additional metrics
+        roc_auc = roc_auc_score(labels, predictions)
+        precision = precision_score(labels, predictions, average='weighted')
+        recall = recall_score(labels, predictions, average='weighted')
+        f1 = f1_score(labels, predictions, average='weighted')
+
+        # Confusion matrix
+        confusion = confusion_matrix(labels, predictions)
+        print("Confusion Matrix:")
+        print(confusion)
+
+        print(f"Ensemble Accuracy: {accuracy:.4f}")
+        print(f"ROC AUC: {roc_auc:.4f}")
+        print(f"Precision: {precision:.4f}")
+        print(f"Recall: {recall:.4f}")
+        print(f"F1-score: {f1:.4f}")
         
-        # Perform PCA on the resampled data
-        n_components = min(features_resampled.shape[0], features_resampled.shape[1], 6)  # Adjust to your desired number of components
-        pca = PCA(n_components=n_components)
-        reduced_features = pca.fit_transform(features_resampled)
         
-        param_grid = {'svc__C': [0.1, 1, 10], 'svc__kernel': ['rbf', 'linear']}
-        grid_search = GridSearchCV(self.svm_model, param_grid, cv=10)
-        grid_search.fit(reduced_features, labels_resampled)
-        
-        self.svm_model = make_pipeline(StandardScaler(), grid_search.best_estimator_)
-        
-        # Fit the model on the entire resampled and reduced training set
-        self.svm_model.fit(reduced_features, labels_resampled)
-        
-    def evaluate(self):
-        features, labels = self.f_extractor.el_extract_features(dataloader=self.val_loader)
-        predictions = self.svm_model.predict(features)
-        self.print_metrics(labels=labels, predictions=predictions, features=features)
 
     def print_metrics(self, labels, predictions, features):
         # Confusion Matrix
